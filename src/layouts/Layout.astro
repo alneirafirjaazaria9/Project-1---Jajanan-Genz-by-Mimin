@@ -23,7 +23,7 @@ const makeTitle = title
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -51,12 +51,23 @@ const makeTitle = title
       }}
     />
   </head>
-  <body class="bg-[#FFF9F2] text-[#4A2E17] font-['Fredoka',sans-serif] antialiased">
+  <body class="bg-[#120722] text-[#F3E8FF] font-['Fredoka',sans-serif] antialiased min-h-screen flex flex-col justify-between selection:bg-[#FF4B91] selection:text-white">
     <Navbar />
-    <slot />
+    <div class="flex-grow">
+      <slot />
+    </div>
     <Footer />
     
     <style is:global>
+      /* Load Custom Font Stout Deco */
+      @font-face {
+        font-family: 'Stout_Deco';
+        src: url('/fonts/StoutDeco.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+
       body {
         font-family: 'Fredoka', cursive, sans-serif;
       }
