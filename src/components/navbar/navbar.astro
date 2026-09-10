@@ -1,62 +1,38 @@
 ---
+// Logo tersimpan di folder: public/logo.png
 ---
 
-<header class="navbar-header">
-  <div class="navbar-container">
-    <!-- Logo Kiri -->
-    <a href="/" class="navbar-brand">
-      <span class="brand-bold">Astro</span><span class="brand-light">ship</span>
+<header class="max-w-6xl mx-auto px-4 py-4 font-['Fredoka']">
+  <div class="flex items-center justify-between">
+    
+    <!-- KIRI: LOGO GAMBAR -->
+    <a href="/" class="flex items-center gap-3 group">
+      <!-- Tag Gambar Logo -->
+      <img 
+        src="/jajangenz.jpeg" 
+        alt="Logo Warung Jajanan" 
+        class="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+        onerror="this.style.display='none'; document.getElementById('alt-title').style.display='flex';"
+      />
+      
+      <div id="alt-title" class="hidden items-center gap-2">
+        <span class="text-2xl">🍿</span>
+        <span class="font-black text-xl text-[#4A2E17]">
+          Warung Jajanan Gen Z by Mimin
+        </span>
+      </div>
     </a>
 
-    <!-- Link Contact Kanan -->
-    <div class="navbar-nav">
-      <a href="/contact" class="nav-link">Contact</a>
-    </div>
+    <!-- KANAN: TOMBOL KONTAK WHATSAPP -->
+    <a
+      href="https://wa.me/6281234567890?text=Halo%20Mimin,%20mau%20tanya-tanya%20seputar%20menu%20jajanan%20dong!"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center gap-2 bg-[#25D366] text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl border-2 border-[#4A2E17] shadow-[2px_2px_0px_0px_#4A2E17] hover:bg-[#20ba59] active:translate-y-0.5 transition-all"
+    >
+      <span>💬</span>
+      <span>Contact</span>
+    </a>
+
   </div>
 </header>
-
-<style>
-  .navbar-header {
-    width: 100%;
-    background-color: transparent;
-    padding: 20px 0;
-  }
-
-  .navbar-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .navbar-brand {
-    font-size: 20px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #0f172a;
-  }
-
-  .brand-bold {
-    font-weight: 800;
-    color: #0f172a;
-  }
-
-  .brand-light {
-    font-weight: 400;
-    color: #64748b;
-  }
-
-  .nav-link {
-    font-size: 15px;
-    font-weight: 500;
-    color: #334155;
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .nav-link:hover {
-    color: #0f172a;
-  }
-</style>

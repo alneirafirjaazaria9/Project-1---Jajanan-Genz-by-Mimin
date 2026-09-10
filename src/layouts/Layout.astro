@@ -2,8 +2,6 @@
 import { SEO } from "astro-seo";
 import Footer from "@/components/footer.astro";
 import Navbar from "@/components/navbar/navbar.astro";
-import "@fontsource-variable/inter/index.css";
-import "@fontsource-variable/bricolage-grotesque";
 import "../styles/global.css";
 
 export interface Props {
@@ -20,8 +18,8 @@ const resolvedImageWithDomain = new URL(
 const { title } = Astro.props;
 
 const makeTitle = title
-  ? title + " | " + "Astroship"
-  : "Astroship - Starter Template for Astro with Tailwind CSS";
+  ? title + " | " + "Jajanan Gen Z by Mimin"
+  : "Jajanan Gen Z by Mimin - Katalog Pesanan";
 ---
 
 <!doctype html>
@@ -32,36 +30,37 @@ const makeTitle = title
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- <link rel="preload" as="image" href={src} alt="Hero" /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <SEO
       title={makeTitle}
-      description="Astroship is a starter website template for Astro built with TailwindCSS."
+      description="Katalog resmi Jajanan Gen Z by Mimin. Pilih menu favoritmu dan pesan langsung via WhatsApp!"
       canonical={canonicalURL}
-      twitter={{
-        creator: "@surjithctly",
-        site: "@web3templates",
-        card: "summary_large_image",
-      }}
       openGraph={{
         basic: {
           url: canonicalURL,
           type: "website",
-          title: `Astroship - Starter Template for Astro`,
+          title: `Jajanan Gen Z by Mimin`,
           image: resolvedImageWithDomain,
         },
         image: {
-          alt: "Astroship Homepage Screenshot",
+          alt: "Jajanan Gen Z Screenshot",
         },
       }}
     />
   </head>
-  <body>
+  <body class="bg-[#FFF9F2] text-[#4A2E17] font-['Fredoka',sans-serif] antialiased">
     <Navbar />
     <slot />
     <Footer />
+    
     <style is:global>
-      /* Improve Page speed */
-      /* https://css-tricks.com/almanac/properties/c/content-visibility/ */
+      body {
+        font-family: 'Fredoka', cursive, sans-serif;
+      }
+
       img {
         content-visibility: auto;
       }

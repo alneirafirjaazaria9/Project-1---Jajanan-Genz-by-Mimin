@@ -1,588 +1,406 @@
 ---
-const noWhatsapp = "6288235843754";
-
-const menuList = [
-  // Menu Asin
-  { id: "tahu-besar", name: "Tahu Kocek (Besar)", price: 10000, desc: "Porsi mantap porsi puas", category: "asin", img: "https://placehold.co/300x200/e2e8f0/475569?text=Tahu+Besar" },
-  { id: "basreng", name: "Basreng Chili Oil", price: 8000, desc: "Pedas gurih nampol", category: "asin", img: "https://placehold.co/300x200/e2e8f0/475569?text=Basreng" },
-  { id: "cireng", name: "Cireng Kuah Keju Creamy", price: 10000, desc: "Kuah keju gurih melimpah", category: "asin", img: "https://placehold.co/300x200/e2e8f0/475569?text=Cireng" },
-  { id: "tahu-kecil", name: "Tahu Kocek (Kecil)", price: 6000, desc: "Porsi pas buat nyemil", category: "asin", img: "https://placehold.co/300x200/e2e8f0/475569?text=Tahu+Kecil" },
-  
-  // Menu Manis
-  { id: "pancake-cokelat", name: "Pancake Cokelat Lumer", price: 12000, desc: "Manis legitim topping melimpah", category: "manis", img: "https://placehold.co/300x200/e2e8f0/475569?text=Pancake" },
-  { id: "pisang-keju", name: "Pisang Keju Susu", price: 10000, desc: "Crispy di luar lembut di dalam", category: "manis", img: "https://placehold.co/300x200/e2e8f0/475569?text=Pisang+Keju" },
+const products = [
+  {
+    id: "tahu-kocek",
+    name: "Tahu Kocek",
+    category: "asin",
+    hasVariants: true,
+    variants: [
+      { id: "tahu-kocek-kecil", name: "Kecil", price: 7000 },
+      { id: "tahu-kocek-besar", name: "Besar", price: 10000 },
+    ],
+    desc: "Pilih porsi nyemil pas atau porsi puas!",
+    badge: "Best Seller 🔥",
+  },
+  {
+    id: "tempura-kocek",
+    name: "Tempura Kocek",
+    category: "asin",
+    price: 10000,
+    desc: "Tempura gurih dengan bumbu sambal kocek",
+    badge: "Pedas 🌶️",
+  },
+  {
+    id: "tempura-bintang-chili-oil",
+    name: "Tempura Bintang Chili Oil",
+    category: "asin",
+    price: 10000,
+    desc: "Tempura pedas gurih dengan chili oil",
+    badge: "Favorit 🧀",
+  },
+  {
+    id: "basreng-chili-oil",
+    name: "Basreng Chili Oil",
+    category: "asin",
+    price: 10000,
+    desc: "Jajanan basreng pedas gurih dengan chili oil",
+    badge: "Hemat 💡",
+  },
+  {
+    id: "cireng-ayamsuwir",
+    name: "Cireng Isi Ayam Suwir",
+    category: "asin",
+    price: 10000,
+    desc: "Porsi pas buat nyemil",
+    badge: "Hemat 💡",
+  },
+  {
+    id: "cireng-kuah-creamy",
+    name: "Cireng Kuah Keju Creamy",
+    category: "asin",
+    price: 12000,
+    desc: "Porsi pas buat nyemil",
+    badge: "Hemat 💡",
+  },
+  {
+    id: "dimsum-kuah-creamy",
+    name: "Dimsum Kuah Keju Creamy",
+    category: "asin",
+    price: 13000,
+    desc: "Porsi pas buat nyemil",
+    badge: "Hemat 💡",
+  },
+  {
+    id: "pancake-cokelat",
+    name: "Pancake Cokelat Lumer",
+    category: "manis",
+    price: 12000,
+    desc: "Manis legit topping melimpah",
+    badge: "Manis 🍫",
+  },
+  {
+    id: "pisang-keju",
+    name: "Pisang Keju Susu",
+    category: "manis",
+    price: 10000,
+    desc: "Crispy di luar lembut di dalam",
+    badge: "Lumer ✨",
+  },
 ];
-
-const timeOptions = ["09.00", "10.00", "11.00", "12.00", "13.00", "14.00", "15.00", "16.00", "17.00", "18.00", "19.00", "20.00"];
 ---
 
-<div class="catalog-container">
-  <div class="catalog-grid">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start font-['Fredoka']">
+  <!-- KOLOM KIRI: MENU -->
+  <div class="lg:col-span-7 bg-[#FFF2E2] p-5 rounded-3xl border-2 border-[#4A2E17] shadow-[4px_4px_0px_0px_#4A2E17]">
     
-    <!-- KIRI: Katalog Produk & Filter -->
-    <div class="menu-section">
-      <div class="header-banner">
-        <h2>Get Menu</h2>
-        <!-- Tombol Filter Kategori -->
-        <div class="category-tabs">
-          <button type="button" class="tab-btn active" data-category="all">All</button>
-          <button type="button" class="tab-btn" data-category="asin">Asin</button>
-          <button type="button" class="tab-btn" data-category="manis">Manis</button>
-        </div>
+    <!-- Header & Filter -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-3 border-b-2 border-dashed border-[#FFB800]">
+      <div>
+        <h2 class="text-2xl font-bold text-[#4A2E17] flex items-center gap-2">
+          <span>🍿</span> Step 1: Pilih Jajanan
+        </h2>
+        <p class="text-xs text-[#7A5230] font-medium mt-0.5">
+          Klik (+/-) di katalog buat masukin menu ke keranjang!
+        </p>
       </div>
-
-      <div class="products-grid">
-        {menuList.map((item) => (
-          <div class="product-card" data-category={item.category}>
-            <div class="image-wrapper">
-              <img src={item.img} alt={item.name} />
-              <div class="qty-badge">
-                Qty: <span id={`qty-display-${item.id}`}>0</span>
-              </div>
-            </div>
-
-            <div class="product-info">
-              <h3>{item.name}</h3>
-              <p class="desc">{item.desc}</p>
-              <p class="price">Rp {item.price.toLocaleString("id-ID")}</p>
-            </div>
-
-            <div class="counter-box">
-              <button type="button" class="btn-minus" data-id={item.id}>-</button>
-              <span id={`counter-${item.id}`} class="count-num">0</span>
-              <button 
-                type="button" 
-                class="btn-plus" 
-                data-id={item.id}
-                data-name={item.name}
-                data-price={item.price}
-              >+</button>
-            </div>
-          </div>
-        ))}
+      <div class="flex gap-2" id="filter-container">
+        <button data-filter="all" class="filter-btn active-filter px-4 py-1.5 text-xs font-bold rounded-full border-2 border-[#4A2E17] bg-[#FFB800] text-[#4A2E17] shadow-[2px_2px_0px_0px_#4A2E17] transition-all">All</button>
+        <button data-filter="asin" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full border-2 border-[#4A2E17] bg-white text-[#4A2E17] shadow-[2px_2px_0px_0px_#4A2E17] transition-all">Asin</button>
+        <button data-filter="manis" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full border-2 border-[#4A2E17] bg-white text-[#4A2E17] shadow-[2px_2px_0px_0px_#4A2E17] transition-all">Manis</button>
       </div>
     </div>
 
-    <!-- KANAN: Form & Ringkasan Pesanan -->
-    <div class="form-section">
-      <h2 class="form-title">Data Pesanan</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {products.map((item) => (
+        <div class="product-item bg-white p-4 rounded-2xl border-2 border-[#4A2E17] shadow-[3px_3px_0px_0px_#4A2E17] flex flex-col justify-between" data-category={item.category}>
+          <div>
+            <div class="relative bg-[#FFF9F2] border-2 border-[#4A2E17] rounded-xl h-28 flex items-center justify-center font-bold text-lg text-[#7A5230] mb-3 overflow-hidden text-center px-2">
+              <span class="z-10">{item.name}</span>
+              <span class="absolute top-2 right-2 bg-[#FF729F] text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#4A2E17]">
+                {item.badge}
+              </span>
+            </div>
 
-      <!-- Data Pemesan -->
-      <div class="form-group">
-        <label>Nama Pemesan</label>
-        <input type="text" id="custName" placeholder="Nama kamu..." />
-      </div>
-      <div class="form-group">
-        <label>Nomor Telepon</label>
-        <input type="tel" id="custPhone" placeholder="08xxxxxxxxxx" />
-      </div>
-      <div class="form-group">
-        <label>Alamat Pemesanan</label>
-        <textarea id="custNotes" rows="2" placeholder="Jl. Raya No. 12..."></textarea>
-      </div>
+            <h3 class="font-bold text-[#4A2E17] text-base leading-snug">{item.name}</h3>
+            <p class="text-xs text-[#7A5230] mt-1 font-medium">{item.desc}</p>
+            
+            {item.hasVariants ? (
+              <div class="mt-3 bg-[#FFF9F2] p-2 rounded-xl border-2 border-[#4A2E17]">
+                <label class="block text-[11px] font-bold text-[#4A2E17] mb-1">Pilih Porsi / Ukuran:</label>
+                <select id={`variant-select-${item.id}`} class="variant-select w-full p-1.5 text-xs font-bold rounded-lg border border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none">
+                  {item.variants?.map((v) => (
+                    <option value={v.id} data-price={v.price} data-name={`${item.name} (${v.name})`}>
+                      Porsi {v.name} - Rp {v.price.toLocaleString("id-ID")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <p class="text-sm font-black text-[#FF5D42] mt-2">Rp {item.price?.toLocaleString("id-ID")}</p>
+            )}
+          </div>
 
-      <!-- Informasi Waktu -->
-      <h3 class="sub-title">Informasi Waktu</h3>
-      <div class="time-grid">
-        <div class="form-group">
-          <label>Tanggal Kirim</label>
-          <input type="date" id="orderDate" />
+          <!-- Counter Qty -->
+          <div class="flex items-center justify-between mt-4 bg-[#FFF9F2] p-1.5 rounded-xl border border-[#4A2E17]">
+            <button class="btn-minus w-8 h-8 rounded-lg border border-[#4A2E17] bg-white text-[#4A2E17] font-bold shadow-[1px_1px_0px_0px_#4A2E17] active:translate-y-0.5" data-id={item.id} data-has-variant={item.hasVariants ? "true" : "false"}>-</button>
+            <span class="qty-count font-bold text-[#4A2E17] text-sm" data-id={item.id}>0</span>
+            <button class="btn-plus w-8 h-8 rounded-lg border border-[#4A2E17] bg-[#FFB800] text-[#4A2E17] font-bold shadow-[1px_1px_0px_0px_#4A2E17] active:translate-y-0.5" data-id={item.id} data-has-variant={item.hasVariants ? "true" : "false"}>+</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Jam Kirim (WIB)</label>
-          <select id="orderTime">
+      ))}
+    </div>
+  </div>
+
+  <!-- KOLOM KANAN: DATA PESANAN -->
+  <div class="lg:col-span-5 bg-[#FFF2E2] p-5 rounded-3xl border-2 border-[#4A2E17] shadow-[4px_4px_0px_0px_#4A2E17] space-y-4">
+    <div class="border-b-2 border-dashed border-[#FFB800] pb-3">
+      <h2 class="text-2xl font-bold text-[#4A2E17] flex items-center gap-2">
+        <span>📋</span> Step 2: Lengkapi Data
+      </h2>
+      <p class="text-xs text-[#7A5230] font-medium mt-0.5">
+        Isi form pengiriman, lalu klik tombol WA buat checkout!
+      </p>
+    </div>
+
+    <form id="order-form" class="space-y-3">
+      <div>
+        <label class="block text-xs font-bold text-[#4A2E17] mb-1">Nama Pemesan</label>
+        <input type="text" id="custName" required placeholder="Nama kamu..." class="w-full px-3 py-2 text-sm rounded-xl border-2 border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none focus:ring-2 focus:ring-[#FFB800]" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-[#4A2E17] mb-1">Nomor Telepon</label>
+        <input type="tel" id="custPhone" required placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 text-sm rounded-xl border-2 border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none focus:ring-2 focus:ring-[#FFB800]" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-[#4A2E17] mb-1">Alamat Pemesanan</label>
+        <textarea id="custAddress" required rows="2" placeholder="Jl. Raya No. 12..." class="w-full px-3 py-2 text-sm rounded-xl border-2 border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none focus:ring-2 focus:ring-[#FFB800]"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-xs font-bold text-[#4A2E17] mb-1">Tanggal Kirim</label>
+          <input type="date" id="orderDate" required class="w-full px-2 py-2 text-xs rounded-xl border-2 border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#4A2E17] mb-1">Jam Kirim (WIB)</label>
+          <select id="orderTime" required class="w-full px-2 py-2 text-xs rounded-xl border-2 border-[#4A2E17] bg-white text-[#4A2E17] focus:outline-none">
             <option value="">Pilih Jam</option>
-            {timeOptions.map((time) => (
-              <option value={`${time} WIB`}>{time} WIB</option>
-            ))}
+            <option value="10:00">10:00 WIB</option>
+            <option value="13:00">13:00 WIB</option>
+            <option value="16:00">16:00 WIB</option>
+            <option value="19:00">19:00 WIB</option>
           </select>
         </div>
       </div>
 
-      <!-- Ringkasan Pesanan -->
-      <h3 class="sub-title">Rincian Pesanan</h3>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Produk</th>
-              <th style="text-align: center;">Qty</th>
-              <th style="text-align: right;">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody id="cartTableBody">
-            <tr>
-              <td colspan="3" class="empty-cart">Belum ada menu yang dipilih</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="bg-white p-3 rounded-2xl border-2 border-[#4A2E17] mt-3">
+        <h3 class="text-xs font-bold text-[#4A2E17] border-b pb-1 mb-2">Rincian Pesanan</h3>
+        <div id="cart-list" class="space-y-1 text-xs text-[#7A5230]">
+          <p class="italic text-center py-2">Belum ada menu yang dipilih</p>
+        </div>
       </div>
 
-      <!-- Total & Order -->
-      <div class="total-box">
-        <span>Total Pembayaran</span>
-        <span id="grandTotalDisplay" class="total-price">Rp 0</span>
+      <div class="bg-[#FF5D42] text-white p-3 rounded-2xl border-2 border-[#4A2E17] shadow-[2px_2px_0px_0px_#4A2E17] flex justify-between items-center">
+        <span class="font-bold text-sm">Total Pembayaran</span>
+        <span id="grand-total" class="font-black text-lg">Rp 0</span>
       </div>
 
-      <button id="btnOrder" type="button" class="btn-submit">
-        Pesan Sekarang (WhatsApp)
+      <button type="submit" class="w-full py-3 bg-[#25D366] text-white font-bold rounded-2xl border-2 border-[#4A2E17] shadow-[3px_3px_0px_0px_#4A2E17] hover:bg-[#20ba59] active:translate-y-0.5 transition-all text-sm flex items-center justify-center gap-2">
+        <span>💬</span> Pesan Sekarang (WhatsApp)
       </button>
-    </div>
-
+    </form>
   </div>
 </div>
 
-<style>
-  /* Override Container Pembungkus Template Bawaan */
-  :global(main), :global(.container), :global(.max-w-screen-xl), :global(.max-w-4xl) {
-    max-width: 1280px !important;
-    width: 100% !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+<script>
+  interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    qty: number;
   }
 
-  .catalog-container {
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 20px auto !important;
-    padding: 24px;
-    background-color: #0f172a;
-    color: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-    font-family: sans-serif;
-    box-sizing: border-box;
-  }
+  const cart: Record<string, CartItem> = {};
+  
+  const productsData = [
+    { id: "tahu-kocek", name: "Tahu Kocek", hasVariants: true },
+    { id: "tempura-kocek", name: "Tempura Kocek", price: 10000, hasVariants: false },
+    { id: "tempura-bintang-chili-oil", name: "Tempura Bintang Chili Oil", price: 10000, hasVariants: false },
+    { id: "basreng-chili-oil", name: "Basreng Chili Oil", price: 10000, hasVariants: false },
+    { id: "cireng-ayamsuwir", name: "Cireng Isi Ayam Suwir", price: 10000, hasVariants: false },
+    { id: "cireng-kuah-creamy", name: "Cireng Kuah Keju Creamy", price: 12000, hasVariants: false },
+    { id: "dimsum-kuah-creamy", name: "Dimsum Kuah Keju Creamy", price: 13000, hasVariants: false },
+    { id: "pancake-cokelat", name: "Pancake Cokelat Lumer", price: 12000, hasVariants: false },
+    { id: "pisang-keju", name: "Pisang Keju Susu", price: 10000, hasVariants: false },
+  ];
 
-  .catalog-container * {
-    box-sizing: border-box;
-  }
-
-  /* Layout Responsive: Default 1 Kolom (HP), Laptop/Desktop 2 Kolom */
-  .catalog-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  @media (min-width: 992px) {
-    .catalog-grid {
-      grid-template-columns: 7fr 5fr;
+  function getSelectedVariantData(productId: string) {
+    const selectEl = document.getElementById(`variant-select-${productId}`) as HTMLSelectElement | null;
+    if (selectEl) {
+      const selectedOption = selectEl.options[selectEl.selectedIndex];
+      return {
+        variantId: selectEl.value,
+        name: selectedOption.getAttribute('data-name') || '',
+        price: Number(selectedOption.getAttribute('data-price')) || 0
+      };
     }
+    return null;
   }
 
-  .header-banner {
-    background-color: rgba(30, 41, 59, 0.8);
-    padding: 12px 16px;
-    border-radius: 16px;
-    margin-bottom: 16px;
-    border: 1px solid #334155;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
+  function updateCartUI() {
+    const cartList = document.getElementById('cart-list');
+    const grandTotalEl = document.getElementById('grand-total');
+    let total = 0;
+    let itemsHTML = '';
 
-  .header-banner h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .category-tabs {
-    display: flex;
-    gap: 6px;
-  }
-
-  .tab-btn {
-    background-color: #1e293b;
-    border: 1px solid #334155;
-    color: #94a3b8;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .tab-btn.active, .tab-btn:hover {
-    background-color: #f59e0b;
-    color: #0f172a;
-    border-color: #f59e0b;
-  }
-
-  /* Grid Produk */
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-  }
-
-  @media (min-width: 640px) {
-    .products-grid {
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    }
-  }
-
-  .product-card {
-    background-color: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 16px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .image-wrapper {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: #334155;
-    margin-bottom: 12px;
-  }
-
-  .image-wrapper img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .qty-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: bold;
-  }
-
-  .product-info h3 {
-    margin: 0 0 4px 0;
-    font-size: 14px;
-    color: #f8fafc;
-  }
-
-  .product-info .desc {
-    margin: 0 0 8px 0;
-    font-size: 11px;
-    color: #94a3b8;
-  }
-
-  .product-info .price {
-    margin: 0 0 12px 0;
-    font-size: 13px;
-    font-weight: 800;
-    color: #fbbf24;
-  }
-
-  .counter-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #0f172a;
-    padding: 4px;
-    border-radius: 10px;
-    border: 1px solid #334155;
-  }
-
-  .btn-minus, .btn-plus {
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .btn-minus {
-    background-color: #334155;
-    color: #fff;
-  }
-
-  .btn-plus {
-    background-color: #f59e0b;
-    color: #0f172a;
-  }
-
-  .count-num {
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .form-section {
-    background-color: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 16px;
-    padding: 20px;
-  }
-
-  .form-title {
-    margin: 0 0 16px 0;
-    font-size: 22px;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 8px;
-  }
-
-  .form-group {
-    margin-bottom: 12px;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    color: #cbd5e1;
-    margin-bottom: 4px;
-  }
-
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%;
-    padding: 8px 12px;
-    background-color: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 13px;
-  }
-
-  .sub-title {
-    margin: 16px 0 8px 0;
-    font-size: 14px;
-    color: #e2e8f0;
-  }
-
-  .time-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .table-wrapper {
-    background-color: #0f172a;
-    border-radius: 8px;
-    border: 1px solid #334155;
-    padding: 8px;
-    margin-bottom: 16px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  th {
-    text-align: left;
-    color: #94a3b8;
-    font-size: 10px;
-    text-transform: uppercase;
-    border-bottom: 1px solid #1e293b;
-    padding-bottom: 6px;
-  }
-
-  td {
-    padding: 6px 0;
-    border-bottom: 1px solid #1e293b;
-  }
-
-  .empty-cart {
-    text-align: center;
-    color: #64748b;
-    font-style: italic;
-    padding: 12px 0;
-  }
-
-  .total-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #000;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-  }
-
-  .total-price {
-    font-size: 16px;
-    font-weight: 800;
-    color: #fbbf24;
-  }
-
-  .btn-submit {
-    width: 100%;
-    background-color: #f59e0b;
-    color: #0f172a;
-    font-weight: 800;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: opacity 0.2s;
-  }
-
-  .btn-submit:hover {
-    opacity: 0.9;
-  }
-</style>
-
-<script is:inline define:vars={{ noWhatsapp }}>
-  document.addEventListener("DOMContentLoaded", () => {
-    let cart = {};
-
-    // Filter Kategori Tab
-    const tabBtns = document.querySelectorAll(".tab-btn");
-    const productCards = document.querySelectorAll(".product-card");
-
-    tabBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        tabBtns.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        const selectedCategory = btn.getAttribute("data-category");
-
-        productCards.forEach((card) => {
-          const cardCategory = card.getAttribute("data-category");
-          if (selectedCategory === "all" || cardCategory === selectedCategory) {
-            card.style.display = "flex";
-          } else {
-            card.style.display = "none";
-          }
-        });
-      });
-    });
-
-    const updateUI = () => {
-      const tableBody = document.getElementById("cartTableBody");
-      let grandTotal = 0;
-      let hasItems = false;
-      let tableHTML = "";
-
-      Object.keys(cart).forEach((id) => {
-        const item = cart[id];
-        const counterEl = document.getElementById(`counter-${id}`);
-        const qtyDisplayEl = document.getElementById(`qty-display-${id}`);
-
-        if (counterEl) counterEl.textContent = item.qty;
-        if (qtyDisplayEl) qtyDisplayEl.textContent = item.qty;
-
-        if (item.qty > 0) {
-          hasItems = true;
-          const subtotal = item.qty * item.price;
-          grandTotal += subtotal;
-
-          tableHTML += `
-            <tr>
-              <td>${item.name}</td>
-              <td style="text-align: center; color: #fbbf24; font-weight: bold;">${item.qty}</td>
-              <td style="text-align: right;">Rp ${subtotal.toLocaleString("id-ID")}</td>
-            </tr>
-          `;
-        }
-      });
-
-      if (!hasItems) {
-        tableHTML = `<tr><td colspan="3" class="empty-cart">Belum ada menu yang dipilih</td></tr>`;
-      }
-
-      if (tableBody) tableBody.innerHTML = tableHTML;
-      const totalEl = document.getElementById("grandTotalDisplay");
-      if (totalEl) totalEl.textContent = `Rp ${grandTotal.toLocaleString("id-ID")}`;
-    };
-
-    document.querySelectorAll(".btn-plus").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-id");
-        const name = btn.getAttribute("data-name");
-        const price = Number(btn.getAttribute("data-price"));
-
-        if (!cart[id]) {
-          cart[id] = { name, price, qty: 0 };
-        }
-        cart[id].qty += 1;
-        updateUI();
-      });
-    });
-
-    document.querySelectorAll(".btn-minus").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-id");
-        if (cart[id] && cart[id].qty > 0) {
-          cart[id].qty -= 1;
-          updateUI();
-        }
-      });
-    });
-
-    const btnOrder = document.getElementById("btnOrder");
-    btnOrder?.addEventListener("click", () => {
-      const custName = document.getElementById("custName")?.value.trim();
-      const custPhone = document.getElementById("custPhone")?.value.trim();
-      const custNotes = document.getElementById("custNotes")?.value.trim();
-      const orderDate = document.getElementById("orderDate")?.value;
-      const orderTime = document.getElementById("orderTime")?.value;
-
-      const selectedItems = Object.values(cart).filter((i) => i.qty > 0);
-
-      if (selectedItems.length === 0) {
-        alert("Pilih minimal satu menu terlebih dahulu!");
-        return;
-      }
-      if (!custName) {
-        alert("Isi Nama Pemesan dulu ya!");
-        return;
-      }
-      if (!custPhone) {
-        alert("Isi Nomor Telepon kamu dulu ya!");
-        return;
-      }
-      if (!orderDate) {
-        alert("Pilih Tanggal Kirim!");
-        return;
-      }
-      if (!orderTime) {
-        alert("Pilih Jam Kirim!");
-        return;
-      }
-
-      const [year, month, day] = orderDate.split("-");
-      const formattedDate = `${day}/${month}/${year}`;
-
-      let total = 0;
-      let orderListText = "";
-      selectedItems.forEach((item) => {
-        const subtotal = item.qty * item.price;
+    for (const key in cart) {
+      const item = cart[key];
+      if (item.qty > 0) {
+        const subtotal = item.price * item.qty;
         total += subtotal;
-        orderListText += `- ${item.name} (${item.qty}x) = Rp ${subtotal.toLocaleString("id-ID")}\n`;
-      });
+        itemsHTML += `
+          <div class="flex justify-between items-center py-1 border-b border-dashed border-gray-200">
+            <span class="font-medium">${item.name} x${item.qty}</span>
+            <span class="font-bold">Rp ${subtotal.toLocaleString('id-ID')}</span>
+          </div>
+        `;
+      }
+    }
 
-      const lines = [
-        "Halo Admin Jajanan Gen Z by Mimin, saya mau order:",
-        "",
-        "*Rincian Pesanan:*",
-        orderListText.trim(),
-        "",
-        `*Total Pembayaran:* Rp ${total.toLocaleString("id-ID")}`,
-        `*Waktu Pengiriman:* ${formattedDate} jam ${orderTime}`,
-        "",
-        "*Data Pemesan:*",
-        `- Nama: ${custName}`,
-        `- No. Telp: ${custPhone}`,
-        custNotes ? `- Alamat/Catatan: ${custNotes}` : null,
-        "",
-        "Mohon diproses ya min, terima kasih!"
-      ].filter((l) => l !== null);
+    if (cartList) {
+      cartList.innerHTML = itemsHTML === '' ? '<p class="italic text-center py-2">Belum ada menu yang dipilih</p>' : itemsHTML;
+    }
+    if (grandTotalEl) {
+      grandTotalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    }
+  }
 
-      const message = lines.join("\n");
-      const waUrl = `https://wa.me/${noWhatsapp}?text=${encodeURIComponent(message)}`;
-      window.open(waUrl, "_blank");
+  document.querySelectorAll('.btn-plus').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const id = target.getAttribute('data-id');
+      const hasVariant = target.getAttribute('data-has-variant') === 'true';
+
+      if (!id) return;
+
+      let cartKey = id;
+      let name = '';
+      let price = 0;
+
+      if (hasVariant) {
+        const variantData = getSelectedVariantData(id);
+        if (variantData) {
+          cartKey = variantData.variantId;
+          name = variantData.name;
+          price = variantData.price;
+        }
+      } else {
+        const product = productsData.find(p => p.id === id);
+        if (product) {
+          name = product.name;
+          price = product.price || 0;
+        }
+      }
+
+      if (!cart[cartKey]) {
+        cart[cartKey] = { id: cartKey, name, price, qty: 0 };
+      }
+      cart[cartKey].qty += 1;
+
+      let totalProductQty = 0;
+      for (const k in cart) {
+        if (k.startsWith(id)) totalProductQty += cart[k].qty;
+      }
+
+      const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
+      if (qtyEl) qtyEl.textContent = String(totalProductQty);
+
+      updateCartUI();
     });
   });
+
+  document.querySelectorAll('.btn-minus').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      const id = target.getAttribute('data-id');
+      const hasVariant = target.getAttribute('data-has-variant') === 'true';
+
+      if (!id) return;
+
+      let cartKey = id;
+
+      if (hasVariant) {
+        const variantData = getSelectedVariantData(id);
+        if (variantData) cartKey = variantData.variantId;
+      }
+
+      if (cart[cartKey] && cart[cartKey].qty > 0) {
+        cart[cartKey].qty -= 1;
+        if (cart[cartKey].qty === 0) delete cart[cartKey];
+      }
+
+      let totalProductQty = 0;
+      for (const k in cart) {
+        if (k.startsWith(id)) totalProductQty += cart[k].qty;
+      }
+
+      const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
+      if (qtyEl) qtyEl.textContent = String(totalProductQty);
+
+      updateCartUI();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLButtonElement;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('bg-[#FFB800]');
+        b.classList.add('bg-white');
+      });
+      target.classList.remove('bg-white');
+      target.classList.add('bg-[#FFB800]');
+
+      const filter = target.getAttribute('data-filter');
+      document.querySelectorAll('.product-item').forEach(item => {
+        const el = item as HTMLElement;
+        if (filter === 'all' || el.getAttribute('data-category') === filter) {
+          el.style.display = 'flex';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  const form = document.getElementById('order-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = (document.getElementById('custName') as HTMLInputElement)?.value || '';
+      const phone = (document.getElementById('custPhone') as HTMLInputElement)?.value || '';
+      const address = (document.getElementById('custAddress') as HTMLTextAreaElement)?.value || '';
+      const date = (document.getElementById('orderDate') as HTMLInputElement)?.value || '';
+      const time = (document.getElementById('orderTime') as HTMLSelectElement)?.value || '';
+
+      let orderItems = '';
+      let total = 0;
+      for (const key in cart) {
+        const item = cart[key];
+        if (item.qty > 0) {
+          orderItems += `- ${item.name} (${item.qty}x) : Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
+          total += item.price * item.qty;
+        }
+      }
+
+      if (total === 0) {
+        alert('Pilih minimal 1 menu jajan dulu ya!');
+        return;
+      }
+
+      const waText = `Halo Mimin! Ada pesanan baru nih 😋:\n\n` +
+        `*Nama:* ${name}\n` +
+        `*No HP:* ${phone}\n` +
+        `*Alamat:* ${address}\n` +
+        `*Waktu Kirim:* ${date} jam ${time}\n\n` +
+        `*Pesanan:*\n${orderItems}\n` +
+        `*Total Pembayaran:* Rp ${total.toLocaleString('id-ID')}\n\n` +
+        `Mohon diproses ya min, makasih!`;
+
+      const adminWA = "6281234567890";
+      window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(waText)}`, '_blank');
+    });
+  }
 </script>
