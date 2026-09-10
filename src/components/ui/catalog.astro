@@ -243,205 +243,235 @@ const products = [
   </div>
 </div>
 
-<script>
-  interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    qty: number;
-  }
+<script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  const cart: Record<string, CartItem> = {};
-  
-  const productsData = [
-    { id: "tahu-kocek", name: "Tahu Kocek", hasVariants: true },
-    { id: "tempura-kocek", name: "Tempura Kocek", price: 10000, hasVariants: false },
-    { id: "tempura-bintang-chili-oil", name: "Tempura Bintang Chili Oil", price: 10000, hasVariants: false },
-    { id: "basreng-chili-oil", name: "Basreng Chili Oil", price: 10000, hasVariants: false },
-    { id: "cireng-ayamsuwir", name: "Cireng Isi Ayam Suwir", price: 10000, hasVariants: false },
-    { id: "cireng-kuah-creamy", name: "Cireng Kuah Keju Creamy", price: 12000, hasVariants: false },
-    { id: "dimsum-kuah-creamy", name: "Dimsum Kuah Keju Creamy", price: 13000, hasVariants: false },
-    { id: "bananaroll", name: "Banana Roll", price: 10000, hasVariants: false },
-    { id: "cheeseroll", name: "Cheese Roll", price: 10000, hasVariants: false },
-    { id: "bolubi-keju", name: "Bola Ubi Keju Lumer", price: 10000, hasVariants: false },
-    { id: "bolubi-cokelat", name: "Bola Ubi Cokelat Lumer", price: 10000, hasVariants: false },
-  ];
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    // KONFIGURASI SUPABASE
+    const SUPABASE_URL = "https://mnpoxmxslqrqsgcfbssv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_a_BfJEtkxjstZ1rBucJMww_uVyO0XuR";
 
-  function getSelectedVariantData(productId: string) {
-    const selectEl = document.getElementById(`variant-select-${productId}`) as HTMLSelectElement | null;
-    if (selectEl) {
-      const selectedOption = selectEl.options[selectEl.selectedIndex];
-      return {
-        variantId: selectEl.value,
-        name: selectedOption.getAttribute('data-name') || '',
-        price: Number(selectedOption.getAttribute('data-price')) || 0
-      };
-    }
-    return null;
-  }
+    const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-  function updateCartUI() {
-    const cartList = document.getElementById('cart-list');
-    const grandTotalEl = document.getElementById('grand-total');
-    let total = 0;
-    let itemsHTML = '';
+    const cart = {};
+    
+    const productsData = [
+      { id: "tahu-kocek", name: "Tahu Kocek", hasVariants: true },
+      { id: "tempura-kocek", name: "Tempura Kocek", price: 10000, hasVariants: false },
+      { id: "tempura-bintang-chili-oil", name: "Tempura Bintang Chili Oil", price: 10000, hasVariants: false },
+      { id: "basreng-chili-oil", name: "Basreng Chili Oil", price: 10000, hasVariants: false },
+      { id: "cireng-ayamsuwir", name: "Cireng Isi Ayam Suwir", price: 10000, hasVariants: false },
+      { id: "cireng-kuah-creamy", name: "Cireng Kuah Keju Creamy", price: 12000, hasVariants: false },
+      { id: "dimsum-kuah-creamy", name: "Dimsum Kuah Keju Creamy", price: 13000, hasVariants: false },
+      { id: "bananaroll", name: "Banana Roll", price: 10000, hasVariants: false },
+      { id: "cheeseroll", name: "Cheese Roll", price: 10000, hasVariants: false },
+      { id: "bolubi-keju", name: "Bola Ubi Keju Lumer", price: 10000, hasVariants: false },
+      { id: "bolubi-cokelat", name: "Bola Ubi Cokelat Lumer", price: 10000, hasVariants: false },
+    ];
 
-    for (const key in cart) {
-      const item = cart[key];
-      if (item.qty > 0) {
-        const subtotal = item.price * item.qty;
-        total += subtotal;
-        itemsHTML += `
-          <div class="flex justify-between items-center py-1 border-b border-[#FF4B91]/10">
-            <span class="font-medium text-white">${item.name} <span class="text-[#FFD000] font-bold">x${item.qty}</span></span>
-            <span class="font-bold text-[#FF93C4]">Rp ${subtotal.toLocaleString('id-ID')}</span>
-          </div>
-        `;
+    function getSelectedVariantData(productId) {
+      const selectEl = document.getElementById('variant-select-' + productId);
+      if (selectEl) {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        return {
+          variantId: selectEl.value,
+          name: selectedOption.getAttribute('data-name') || '',
+          price: Number(selectedOption.getAttribute('data-price')) || 0
+        };
       }
+      return null;
     }
 
-    if (cartList) {
-      cartList.innerHTML = itemsHTML === '' ? '<p class="italic text-center py-2 text-[#8B74A8]">Belum ada menu yang dipilih</p>' : itemsHTML;
-    }
-    if (grandTotalEl) {
-      grandTotalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
-    }
-  }
-
-  document.querySelectorAll('.btn-plus').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLButtonElement;
-      const id = target.getAttribute('data-id');
-      const hasVariant = target.getAttribute('data-has-variant') === 'true';
-
-      if (!id) return;
-
-      let cartKey = id;
-      let name = '';
-      let price = 0;
-
-      if (hasVariant) {
-        const variantData = getSelectedVariantData(id);
-        if (variantData) {
-          cartKey = variantData.variantId;
-          name = variantData.name;
-          price = variantData.price;
-        }
-      } else {
-        const product = productsData.find(p => p.id === id);
-        if (product) {
-          name = product.name;
-          price = product.price || 0;
-        }
-      }
-
-      if (!cart[cartKey]) {
-        cart[cartKey] = { id: cartKey, name, price, qty: 0 };
-      }
-      cart[cartKey].qty += 1;
-
-      let totalProductQty = 0;
-      for (const k in cart) {
-        if (k.startsWith(id)) totalProductQty += cart[k].qty;
-      }
-
-      const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
-      if (qtyEl) qtyEl.textContent = String(totalProductQty);
-
-      updateCartUI();
-    });
-  });
-
-  document.querySelectorAll('.btn-minus').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLButtonElement;
-      const id = target.getAttribute('data-id');
-      const hasVariant = target.getAttribute('data-has-variant') === 'true';
-
-      if (!id) return;
-
-      let cartKey = id;
-
-      if (hasVariant) {
-        const variantData = getSelectedVariantData(id);
-        if (variantData) cartKey = variantData.variantId;
-      }
-
-      if (cart[cartKey] && cart[cartKey].qty > 0) {
-        cart[cartKey].qty -= 1;
-        if (cart[cartKey].qty === 0) delete cart[cartKey];
-      }
-
-      let totalProductQty = 0;
-      for (const k in cart) {
-        if (k.startsWith(id)) totalProductQty += cart[k].qty;
-      }
-
-      const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
-      if (qtyEl) qtyEl.textContent = String(totalProductQty);
-
-      updateCartUI();
-    });
-  });
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLButtonElement;
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('bg-[#FF4B91]', 'text-white', 'shadow-[0_0_10px_#FF4B91]');
-        b.classList.add('text-[#C8B3E6]');
-      });
-      target.classList.remove('text-[#C8B3E6]');
-      target.classList.add('bg-[#FF4B91]', 'text-white', 'shadow-[0_0_10px_#FF4B91]');
-
-      const filter = target.getAttribute('data-filter');
-      document.querySelectorAll('.product-item').forEach(item => {
-        const el = item as HTMLElement;
-        if (filter === 'all' || el.getAttribute('data-category') === filter) {
-          el.style.display = 'flex';
-        } else {
-          el.style.display = 'none';
-        }
-      });
-    });
-  });
-
-  const form = document.getElementById('order-form');
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = (document.getElementById('custName') as HTMLInputElement)?.value || '';
-      const phone = (document.getElementById('custPhone') as HTMLInputElement)?.value || '';
-      const address = (document.getElementById('custAddress') as HTMLTextAreaElement)?.value || '';
-      const date = (document.getElementById('orderDate') as HTMLInputElement)?.value || '';
-      const time = (document.getElementById('orderTime') as HTMLSelectElement)?.value || '';
-
-      let orderItems = '';
+    function updateCartUI() {
+      const cartList = document.getElementById('cart-list');
+      const grandTotalEl = document.getElementById('grand-total');
       let total = 0;
+      let itemsHTML = '';
+
       for (const key in cart) {
         const item = cart[key];
         if (item.qty > 0) {
-          orderItems += `- ${item.name} (${item.qty}x) : Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
-          total += item.price * item.qty;
+          const subtotal = item.price * item.qty;
+          total += subtotal;
+          itemsHTML += `
+            <div class="flex justify-between items-center py-1 border-b border-[#FF4B91]/10">
+              <span class="font-medium text-white">${item.name} <span class="text-[#FFD000] font-bold">x${item.qty}</span></span>
+              <span class="font-bold text-[#FF93C4]">Rp ${subtotal.toLocaleString('id-ID')}</span>
+            </div>
+          `;
         }
       }
 
-      if (total === 0) {
-        alert('Pilih minimal 1 menu jajan dulu ya!');
-        return;
+      if (cartList) {
+        cartList.innerHTML = itemsHTML === '' ? '<p class="italic text-center py-2 text-[#8B74A8]">Belum ada menu yang dipilih</p>' : itemsHTML;
       }
+      if (grandTotalEl) {
+        grandTotalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+      }
+    }
 
-      const waText = `Halo Mimin! Ada pesanan baru nih 😋:\n\n` +
-        `*Nama:* ${name}\n` +
-        `*No HP:* ${phone}\n` +
-        `*Alamat:* ${address}\n` +
-        `*Waktu Kirim:* ${date} jam ${time}\n\n` +
-        `*Pesanan:*\n${orderItems}\n` +
-        `*Total Pembayaran:* Rp ${total.toLocaleString('id-ID')}\n\n` +
-        `Mohon diproses ya min, makasih!`;
+    // Tombol +
+    document.querySelectorAll('.btn-plus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget;
+        const id = target.getAttribute('data-id');
+        const hasVariant = target.getAttribute('data-has-variant') === 'true';
 
-      const adminWA = "6288235843754";
-      window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(waText)}`, '_blank');
+        if (!id) return;
+
+        let cartKey = id;
+        let name = '';
+        let price = 0;
+
+        if (hasVariant) {
+          const variantData = getSelectedVariantData(id);
+          if (variantData) {
+            cartKey = variantData.variantId;
+            name = variantData.name;
+            price = variantData.price;
+          }
+        } else {
+          const product = productsData.find(p => p.id === id);
+          if (product) {
+            name = product.name;
+            price = product.price || 0;
+          }
+        }
+
+        if (!cart[cartKey]) {
+          cart[cartKey] = { id: cartKey, name, price, qty: 0 };
+        }
+        cart[cartKey].qty += 1;
+
+        let totalProductQty = 0;
+        for (const k in cart) {
+          if (k.startsWith(id)) totalProductQty += cart[k].qty;
+        }
+
+        const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
+        if (qtyEl) qtyEl.textContent = String(totalProductQty);
+
+        updateCartUI();
+      });
     });
-  }
+
+    // Tombol -
+    document.querySelectorAll('.btn-minus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget;
+        const id = target.getAttribute('data-id');
+        const hasVariant = target.getAttribute('data-has-variant') === 'true';
+
+        if (!id) return;
+
+        let cartKey = id;
+
+        if (hasVariant) {
+          const variantData = getSelectedVariantData(id);
+          if (variantData) cartKey = variantData.variantId;
+        }
+
+        if (cart[cartKey] && cart[cartKey].qty > 0) {
+          cart[cartKey].qty -= 1;
+          if (cart[cartKey].qty === 0) delete cart[cartKey];
+        }
+
+        let totalProductQty = 0;
+        for (const k in cart) {
+          if (k.startsWith(id)) totalProductQty += cart[k].qty;
+        }
+
+        const qtyEl = document.querySelector(`.qty-count[data-id="${id}"]`);
+        if (qtyEl) qtyEl.textContent = String(totalProductQty);
+
+        updateCartUI();
+      });
+    });
+
+    // Filter Kategori
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('bg-[#FF4B91]', 'text-white', 'shadow-[0_0_10px_#FF4B91]');
+          b.classList.add('text-[#C8B3E6]');
+        });
+        target.classList.remove('text-[#C8B3E6]');
+        target.classList.add('bg-[#FF4B91]', 'text-white', 'shadow-[0_0_10px_#FF4B91]');
+
+        const filter = target.getAttribute('data-filter');
+        document.querySelectorAll('.product-item').forEach(item => {
+          if (filter === 'all' || item.getAttribute('data-category') === filter) {
+            item.style.display = 'flex';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Submit Order
+    const form = document.getElementById('order-form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('custName')?.value || '';
+        const phone = document.getElementById('custPhone')?.value || '';
+        const address = document.getElementById('custAddress')?.value || '';
+        const date = document.getElementById('orderDate')?.value || '';
+        const time = document.getElementById('orderTime')?.value || '';
+
+        let orderItemsText = '';
+        let orderItemsSummary = [];
+        let total = 0;
+
+        for (const key in cart) {
+          const item = cart[key];
+          if (item.qty > 0) {
+            orderItemsText += `- ${item.name} (${item.qty}x) : Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
+            orderItemsSummary.push(`${item.name} (${item.qty}x)`);
+            total += item.price * item.qty;
+          }
+        }
+
+        if (total === 0) {
+          alert('Pilih minimal 1 menu jajan dulu ya!');
+          return;
+        }
+
+        if (supabase) {
+          try {
+            const { error } = await supabase
+              .from('pesanan')
+              .insert([
+                { 
+                  nama: name, 
+                  telepon: phone, 
+                  alamat: address,
+                  tanggal_kirim: `${date} (${time})`,
+                  pesanan: orderItemsSummary.join(', '), 
+                  total: `Rp ${total.toLocaleString('id-ID')}` 
+                }
+              ]);
+
+            if (error) console.error('Error Supabase:', error.message);
+          } catch (err) {
+            console.error('Gagal simpan:', err);
+          }
+        }
+
+        const waText = `Halo Mimin! Ada pesanan baru nih 😋:\n\n` +
+          `*Nama:* ${name}\n` +
+          `*No HP:* ${phone}\n` +
+          `*Alamat:* ${address}\n` +
+          `*Waktu Kirim:* ${date} jam ${time}\n\n` +
+          `*Pesanan:*\n${orderItemsText}\n` +
+          `*Total Pembayaran:* Rp ${total.toLocaleString('id-ID')}\n\n` +
+          `Mohon diproses ya min, makasih!`;
+
+        const adminWA = "6288235843754";
+        window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(waText)}`, '_blank');
+      });
+    }
+  });
 </script>

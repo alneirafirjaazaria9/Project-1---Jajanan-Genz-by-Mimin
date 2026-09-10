@@ -1,0 +1,282 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Admin Rekap Pesanan">
+  <!-- Load CDN Eksternal -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+  <div class="bg-[#0F051D] text-white min-h-screen p-4 md:p-8 font-sans">
+    
+    <!-- LOGIN FORM -->
+    <div id="login-section" class="max-w-md mx-auto mt-16 bg-[#1A0B2E] border border-[#FF4B91]/30 rounded-2xl p-6 shadow-2xl text-center">
+      <div class="text-4xl mb-3">🔐</div>
+      <h1 class="text-2xl font-bold text-[#FFD000] mb-2">Akses Rekap Admin</h1>
+      <p class="text-xs text-[#C8B3E6] mb-6">Masukkan PIN keamanan untuk melihat rekapan pesanan.</p>
+      
+      <form id="pin-form" class="space-y-4">
+        <input 
+          type="password" 
+          id="pin-input" 
+          placeholder="Masukkan PIN Admin" 
+          class="w-full bg-[#25133E] border border-[#FF4B91]/40 rounded-xl px-4 py-3 text-center text-lg text-white font-bold tracking-widest focus:outline-none focus:border-[#FF4B91]"
+          required
+        />
+        <button 
+          type="submit" 
+          class="w-full bg-[#FF4B91] hover:bg-[#ff2d7d] text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(255,75,145,0.4)]">
+          Masuk ke Dashboard
+        </button>
+      </form>
+    </div>
+
+    <!-- DASHBOARD ADMIN -->
+    <div id="admin-dashboard" class="max-w-5xl mx-auto hidden">
+      <!-- Header Dashboard -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#1A0B2E] border border-[#FF4B91]/20 p-5 rounded-2xl">
+        <div>
+          <h1 class="text-2xl font-extrabold text-[#FFD000] flex items-center gap-2">
+            📊 Rekap Pesanan Masuk
+          </h1>
+          <p class="text-xs text-[#C8B3E6] mt-1">Pantau & download rekapan pesanan dapur/pengiriman.</p>
+        </div>
+        
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <button id="btn-refresh" class="bg-[#25133E] hover:bg-[#341b57] text-[#C8B3E6] px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-[#FF4B91]/20 flex items-center gap-1">
+            🔄 Refresh Data
+          </button>
+          <button id="btn-pdf" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-1">
+            📄 Download PDF Rekapan
+          </button>
+          <button id="btn-logout" class="bg-rose-900/40 hover:bg-rose-900/80 text-rose-300 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border border-rose-500/30">
+            Keluar
+          </button>
+        </div>
+      </div>
+
+      <!-- Ringkasan Statistik -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-4 rounded-xl">
+          <p class="text-xs text-[#C8B3E6]">Total Pesanan</p>
+          <p id="stat-total-orders" class="text-2xl font-black text-[#FFD000]">0</p>
+        </div>
+        <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-4 rounded-xl">
+          <p class="text-xs text-[#C8B3E6]">Total Omset Rekapan</p>
+          <p id="stat-total-income" class="text-xl md:text-2xl font-black text-emerald-400">Rp 0</p>
+        </div>
+        <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-4 rounded-xl col-span-2 md:col-span-1">
+          <p class="text-xs text-[#C8B3E6]">Tanggal Rekap</p>
+          <p id="stat-date" class="text-sm font-bold text-white mt-1">-</p>
+        </div>
+      </div>
+
+      <!-- Daftar Pesanan -->
+      <div class="space-y-4" id="orders-container">
+        <p class="text-center text-[#8B74A8] py-12 italic">Memuat data pesanan...</p>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ADMIN_PIN = "123456";
+      const SUPABASE_URL = "https://mnpoxmxslqrqsgcfbssv.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_a_BfJEtkxjstZ1rBucJMww_uVyO0XuR";
+
+      let supabaseClient = null;
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+
+      const loginSection = document.getElementById('login-section');
+      const adminDashboard = document.getElementById('admin-dashboard');
+      const pinForm = document.getElementById('pin-form');
+      const pinInput = document.getElementById('pin-input');
+      const ordersContainer = document.getElementById('orders-container');
+
+      let fetchedOrders = [];
+
+      if (sessionStorage.getItem('admin_authenticated') === 'true') {
+        showDashboard();
+      }
+
+      pinForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (pinInput && pinInput.value === ADMIN_PIN) {
+          sessionStorage.setItem('admin_authenticated', 'true');
+          showDashboard();
+        } else {
+          alert('PIN Salah! Coba lagi ya.');
+          if (pinInput) pinInput.value = '';
+        }
+      });
+
+      document.getElementById('btn-logout')?.addEventListener('click', () => {
+        sessionStorage.removeItem('admin_authenticated');
+        window.location.reload();
+      });
+
+      document.getElementById('btn-refresh')?.addEventListener('click', () => {
+        loadOrders();
+      });
+
+      document.getElementById('btn-pdf')?.addEventListener('click', () => {
+        generatePDF();
+      });
+
+      function showDashboard() {
+        loginSection?.classList.add('hidden');
+        adminDashboard?.classList.remove('hidden');
+        loadOrders();
+      }
+
+      async function loadOrders() {
+        if (!supabaseClient) {
+          if (ordersContainer) ordersContainer.innerHTML = '<p class="text-center text-rose-400 py-8">Koneksi Supabase gagal dimuat.</p>';
+          return;
+        }
+
+        if (ordersContainer) ordersContainer.innerHTML = '<p class="text-center text-[#8B74A8] py-8 italic">Mengambil data dari database...</p>';
+
+        try {
+          const { data, error } = await supabaseClient
+            .from('pesanan')
+            .select('*')
+            .order('id', { ascending: false });
+
+          if (error) throw error;
+
+          fetchedOrders = data || [];
+          renderOrders(fetchedOrders);
+          updateStats(fetchedOrders);
+        } catch (err) {
+          console.error(err);
+          if (ordersContainer) ordersContainer.innerHTML = `<p class="text-center text-rose-400 py-8">Gagal mengambil data pesanan: ${err.message || err}</p>`;
+        }
+      }
+
+      function renderOrders(orders) {
+        if (!ordersContainer) return;
+
+        if (orders.length === 0) {
+          ordersContainer.innerHTML = `
+            <div class="bg-[#1A0B2E] p-8 rounded-2xl text-center border border-[#FF4B91]/10">
+              <p class="text-gray-400">Belum ada pesanan masuk.</p>
+            </div>`;
+          return;
+        }
+
+        let html = '';
+        orders.forEach((item, index) => {
+          html += `
+            <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+              <div class="flex justify-between items-start mb-3 border-b border-[#FF4B91]/10 pb-3">
+                <div>
+                  <span class="text-xs bg-[#FF4B91]/20 text-[#FF4B91] px-2.5 py-1 rounded-full font-bold">#${orders.length - index}</span>
+                  <h3 class="text-lg font-bold text-white mt-1">${item.nama || 'Tanpa Nama'}</h3>
+                  <p class="text-xs text-[#FFD000] font-semibold">📞 ${item.telepon || '-'}</p>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-[#C8B3E6] block">Jam / Tgl Kirim:</span>
+                  <span class="text-xs font-bold text-white bg-[#25133E] px-2 py-1 rounded border border-[#FF4B91]/30 inline-block mt-0.5">${item.tanggal_kirim || '-'}</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <p class="text-xs text-[#8B74A8] font-semibold mb-1">🏠 Alamat Pengiriman:</p>
+                <p class="text-xs text-[#C8B3E6] bg-[#25133E]/50 p-2.5 rounded-lg border border-[#FF4B91]/10">${item.alamat || '-'}</p>
+              </div>
+
+              <div class="mb-3">
+                <p class="text-xs text-[#8B74A8] font-semibold mb-1">🛒 Detail Pesanan:</p>
+                <p class="text-sm font-medium text-white bg-[#25133E] p-2.5 rounded-lg border border-[#FF4B91]/20 leading-relaxed">${item.pesanan || '-'}</p>
+              </div>
+
+              <div class="flex justify-between items-center border-t border-[#FF4B91]/10 pt-3 mt-2">
+                <span class="text-xs text-[#8B74A8]">Total Pembayaran:</span>
+                <span class="text-base font-extrabold text-[#FFD000]">${item.total || 'Rp 0'}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        ordersContainer.innerHTML = html;
+      }
+
+      function updateStats(orders) {
+        const totalOrdersEl = document.getElementById('stat-total-orders');
+        const totalIncomeEl = document.getElementById('stat-total-income');
+        const statDateEl = document.getElementById('stat-date');
+
+        if (totalOrdersEl) totalOrdersEl.innerText = orders.length;
+
+        let grandTotal = 0;
+        orders.forEach(o => {
+          if (o.total) {
+            const num = parseInt(o.total.replace(/[^0-9]/g, '')) || 0;
+            grandTotal += num;
+          }
+        });
+
+        if (totalIncomeEl) totalIncomeEl.innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+
+        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        if (statDateEl) statDateEl.innerText = today;
+      }
+
+      function generatePDF() {
+        if (fetchedOrders.length === 0) {
+          alert('Tidak ada data pesanan untuk di-download.');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        doc.setFontSize(16);
+        doc.text("REKAP PESANAN - JAJANAN GEN Z BY MIMIN", 14, 18);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Tanggal Cetak: ${todayStr}`, 14, 25);
+        doc.text(`Total Pesanan: ${fetchedOrders.length} Pesanan`, 14, 30);
+
+        const tableData = [];
+        fetchedOrders.forEach((item, index) => {
+          tableData.push([
+            index + 1,
+            item.nama || '-',
+            item.telepon || '-',
+            item.tanggal_kirim || '-',
+            item.pesanan || '-',
+            item.alamat || '-',
+            item.total || '-'
+          ]);
+        });
+
+        doc.autoTable({
+          startY: 35,
+          head: [['No', 'Nama', 'No WA', 'Waktu Kirim', 'Pesanan', 'Alamat', 'Total']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [255, 75, 145], textColor: [255, 255, 255], fontStyle: 'bold' },
+          styles: { fontSize: 8, cellPadding: 2.5 },
+          columnStyles: {
+            0: { cellWidth: 8 },
+            1: { cellWidth: 25 },
+            2: { cellWidth: 25 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 45 },
+            5: { cellWidth: 40 },
+            6: { cellWidth: 22 }
+          }
+        });
+
+        doc.save(`Rekap_Pesanan_JajananGenZ_${todayStr.replace(/\s+/g, '_')}.pdf`);
+      }
+    });
+  </script>
+</Layout>
