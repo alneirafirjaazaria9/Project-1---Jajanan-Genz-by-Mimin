@@ -1,45 +1,67 @@
 ---
-import { Tick } from "@/components/ui/icons";
-import Link from "@/components/ui/link.astro";
+const noWhatsapp = "6281234567890"; // Ganti pakai nomor WA kamu (awali 62)
 
-const { plan } = Astro.props;
+const products = [
+  {
+    name: "Paket Jajangan A",
+    price: "Rp 15.000",
+    description: "Cemilan pedas gurih porsi pas buat santai.",
+    popular: false,
+  },
+  {
+    name: "Paket Jajangan B",
+    price: "Rp 25.000",
+    description: "Kombo komplit rasa balado & keju melimpah.",
+    popular: true,
+  },
+  {
+    name: "Paket Jumbo Party",
+    price: "Rp 45.000",
+    description: "Porsi besar cocok buat nongkrong bareng teman.",
+    popular: false,
+  },
+];
 ---
 
-<div>
-  <div
-    class="flex flex-col w-full order-first lg:order-none border-2 border-[#D8DEE9] border-opacity-50 py-5 px-6 rounded-md">
-    <div class="text-center">
-      <h4 class="text-lg font-medium text-gray-400">{plan.name}</h4><p
-        class="mt-3 text-4xl font-bold text-black md:text-4xl">
-        {
-          plan.price && typeof plan.price === "object"
-            ? plan.price.monthly
-            : plan.price
-        }
-      </p>
-      <!-- {
-        plan.price.original && (
-          <p class="mt-1 text-xl font-medium text-gray-400 line-through md:text-2xl">
-            {plan.price.original}
-          </p>
-        )
-      } -->
-    </div><ul class="grid mt-8 text-left gap-y-4">
-      {
-        plan.features.map((item) => (
-          <li class="flex items-start gap-3 text-gray-800">
-            <Tick class="w-6 h-6" />
-            <span>{item}</span>
-          </li>
-        ))
-      }
-    </ul><div class="flex mt-8">
-      <Link
-        href={plan.button.link || "#"}
-        block
-        style={plan.popular ? "primary" : "outline"}>
-        {plan.button.text || "Get Started"}
-      </Link>
-    </div>
+<div class="max-w-screen-xl mx-auto px-5 py-10">
+  <div class="text-center max-w-3xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-slate-800">
+      Pilihan Menu Jajangen
+    </h2>
+    <p class="text-base md:text-lg mt-2 text-slate-600">
+      Pilih menu favoritmu dan pesan langsung via WhatsApp!
+    </p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6 mt-10">
+    {
+      products.map((item) => {
+        const textWA = encodeURIComponent(`Halo Admin Jajangen, saya mau pesan ${item.name} seharga ${item.price}. Silakan proses pesanan saya ya!`);
+        const linkWA = `https://wa.me/${noWhatsapp}?text=${textWA}`;
+
+        return (
+          <div class={`flex flex-col justify-between border-2 rounded-2xl p-6 bg-white ${item.popular ? 'border-green-500 shadow-xl relative' : 'border-slate-200'}`}>
+            <div>
+              {item.popular && (
+                <span class="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
+                  Paling Laris
+                </span>
+              )}
+              <h3 class="text-xl font-bold text-slate-800">{item.name}</h3>
+              <p class="text-2xl font-extrabold text-slate-900 mt-2">{item.price}</p>
+              <p class="text-slate-600 mt-3 text-sm leading-relaxed">{item.description}</p>
+            </div>
+            <a
+              href={linkWA}
+              target="_blank"
+              rel="noopener noreferrer"
+              class={`mt-6 w-full text-center py-3 px-4 rounded-xl font-semibold transition ${item.popular ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+            >
+              Pesan via WhatsApp
+            </a>
+          </div>
+        );
+      })
+    }
   </div>
 </div>
