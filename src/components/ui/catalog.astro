@@ -70,6 +70,7 @@ const products = [
     name: "Banana Roll",
     category: "manis",
     image: "/bananaroll.jpg",
+    hasGlazeTopping: true,
     price: 10000,
     desc: "Olahan pisang manis legit dengan topping melimpah",
   },
@@ -78,6 +79,7 @@ const products = [
     name: "Cheese Roll",
     category: "manis",
     image: "/cheeseroll.jpg",
+    hasGlazeTopping: true,
     price: 10000,
     desc: "Crispy di luar lembut di dalam",
     badge: "",
@@ -87,6 +89,7 @@ const products = [
     name: "Bola Ubi Cokelat Lumer",
     category: "manis",
     image: "/bolubicokelat.jpg",
+    hasGlazeTopping: true,
     price: 10000,
     desc: "Olahan ubi di luar lembut di dalam",
     badge: "",
@@ -96,6 +99,7 @@ const products = [
     name: "Bola Ubi Keju Lumer",
     category: "manis",
     image: "/bolubikeju.jpg",
+    hasGlazeTopping: true,
     price: 10000,
     desc: "Olahan ubi di luar lembut di dalam",
     badge: "",
@@ -113,7 +117,7 @@ const products = [
           <span>🍿</span> Step 1: Pilih Jajanan
         </h2>
         <p class="text-xs text-[#C8B3E6] font-medium mt-0.5">
-          Klik (+/-) di katalog buat masukin menu ke keranjang!
+          Pilih varian & topping kesukaanmu, lalu klik (+)!
         </p>
       </div>
       
@@ -141,7 +145,6 @@ const products = [
                 <span class="z-10 px-2">{item.name}</span>
               )}
 
-              <!-- Badge Opsional (Hanya Tampil Jika badge Diisi) -->
               {item.badge && (
                 <span class="absolute top-2 right-2 bg-[#FF4B91] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-[0_0_8px_#FF4B91] z-20">
                   {item.badge}
@@ -152,10 +155,11 @@ const products = [
             <h3 class="font-bold text-white text-base leading-snug">{item.name}</h3>
             <p class="text-xs text-[#C8B3E6] mt-1 font-medium">{item.desc}</p>
             
-            {item.hasVariants ? (
+            <!-- Pilihan Ukuran / Porsi -->
+            {item.hasVariants && (
               <div class="mt-3 bg-[#24113B] p-2 rounded-xl border border-[#FF4B91]/30">
                 <label class="block text-[11px] font-bold text-[#FF93C4] mb-1">Pilih Porsi / Ukuran:</label>
-                <select id={`variant-select-${item.id}`} class="variant-select w-full p-1.5 text-xs font-bold rounded-lg bg-[#120722] text-white border border-[#FF4B91]/30 focus:outline-none focus:border-[#FF4B91]">
+                <select id={`variant-select-${item.id}`} class="variant-select w-full p-1.5 text-xs font-bold rounded-lg bg-[#120722] text-white border border-[#FF4B91]/30 focus:outline-none focus:border-[#FF4B91]" data-id={item.id}>
                   {item.variants?.map((v) => (
                     <option value={v.id} data-price={v.price} data-name={`${item.name} (${v.name})`}>
                       Porsi {v.name} - Rp {v.price.toLocaleString("id-ID")}
@@ -163,16 +167,81 @@ const products = [
                   ))}
                 </select>
               </div>
-            ) : (
-              <p class="text-sm font-black text-[#FFD000] mt-2 drop-shadow-[0_0_5px_rgba(255,208,0,0.5)]">Rp {item.price?.toLocaleString("id-ID")}</p>
+            )}
+
+            <!-- Pilihan Glaze & Topping -->
+            {item.hasGlazeTopping && (
+              <div class="mt-3 bg-[#24113B] p-2.5 rounded-xl border border-[#FF4B91]/30 space-y-2">
+                <p class="text-[10px] text-[#FF93C4] font-semibold">*Bebas pilih glaze & topping favoritmu!</p>
+                
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[10px] font-bold text-[#C8B3E6] mb-0.5">Glaze 1:</label>
+                    <select id={`glaze1-select-${item.id}`} class="glaze-select w-full p-1 text-[11px] font-bold rounded-lg bg-[#120722] text-white border border-[#FF4B91]/30 focus:outline-none" data-id={item.id}>
+                      <option value="">Tanpa Glaze</option>
+                      <option value="Coklat">Coklat</option>
+                      <option value="Tiramissu">Tiramissu</option>
+                      <option value="Matcha">Matcha</option>
+                      <option value="Strawberry">Strawberry</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-[#C8B3E6] mb-0.5">Glaze 2 (Opsional):</label>
+                    <select id={`glaze2-select-${item.id}`} class="glaze-select w-full p-1 text-[11px] font-bold rounded-lg bg-[#120722] text-white border border-[#FF4B91]/30 focus:outline-none" data-id={item.id}>
+                      <option value="">Tanpa Glaze</option>
+                      <option value="Coklat">Coklat</option>
+                      <option value="Tiramissu">Tiramissu</option>
+                      <option value="Matcha">Matcha</option>
+                      <option value="Strawberry">Strawberry</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold text-[#C8B3E6] mb-1">Pilih Topping:</label>
+                  <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                    <label class="flex items-center gap-1.5 bg-[#120722] p-1 rounded-lg border border-[#FF4B91]/20 cursor-pointer">
+                      <input type="checkbox" name={`topping-${item.id}`} value="Keju" class="topping-cb accent-[#FF4B91]" data-id={item.id} />
+                      <span>Keju</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 bg-[#120722] p-1 rounded-lg border border-[#FF4B91]/20 cursor-pointer">
+                      <input type="checkbox" name={`topping-${item.id}`} value="Sprinkle" class="topping-cb accent-[#FF4B91]" data-id={item.id} />
+                      <span>Sprinkle</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 bg-[#120722] p-1 rounded-lg border border-[#FF4B91]/20 cursor-pointer">
+                      <input type="checkbox" name={`topping-${item.id}`} value="Oreo" class="topping-cb accent-[#FF4B91]" data-id={item.id} />
+                      <span>Oreo</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 bg-[#120722] p-1 rounded-lg border border-[#FF4B91]/20 cursor-pointer">
+                      <input type="checkbox" name={`topping-${item.id}`} value="Chochocips" class="topping-cb accent-[#FF4B91]" data-id={item.id} />
+                      <span>Chochocips</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <!-- Display Harga Live -->
+            {!item.hasVariants && (
+              <p id={`price-display-${item.id}`} class="text-sm font-black text-[#FFD000] mt-2 drop-shadow-[0_0_5px_rgba(255,208,0,0.5)]">
+                Rp {item.price?.toLocaleString("id-ID")}
+              </p>
             )}
           </div>
 
           <!-- Counter Qty -->
           <div class="flex items-center justify-between mt-4 bg-[#120722] p-1.5 rounded-xl border border-[#FF4B91]/30">
-            <button class="btn-minus w-8 h-8 rounded-lg bg-[#24113B] hover:bg-[#361B54] text-white font-bold transition-all active:scale-95 border border-[#FF4B91]/20" data-id={item.id} data-has-variant={item.hasVariants ? "true" : "false"}>-</button>
+            <button 
+              class="btn-minus w-8 h-8 rounded-lg bg-[#24113B] hover:bg-[#361B54] text-white font-bold transition-all active:scale-95 border border-[#FF4B91]/20" 
+              data-id={item.id} 
+              data-has-variant={item.hasVariants ? "true" : "false"}
+              data-has-glaze={item.hasGlazeTopping ? "true" : "false"}>-</button>
             <span class="qty-count font-bold text-white text-sm" data-id={item.id}>0</span>
-            <button class="btn-plus w-8 h-8 rounded-lg bg-[#FF4B91] hover:bg-[#ff3381] text-white font-bold transition-all shadow-[0_0_10px_rgba(255,75,145,0.5)] active:scale-95" data-id={item.id} data-has-variant={item.hasVariants ? "true" : "false"}>+</button>
+            <button 
+              class="btn-plus w-8 h-8 rounded-lg bg-[#FF4B91] hover:bg-[#ff3381] text-white font-bold transition-all shadow-[0_0_10px_rgba(255,75,145,0.5)] active:scale-95" 
+              data-id={item.id} 
+              data-has-variant={item.hasVariants ? "true" : "false"}
+              data-has-glaze={item.hasGlazeTopping ? "true" : "false"}>+</button>
           </div>
         </div>
       ))}
@@ -247,7 +316,6 @@ const products = [
 
 <script is:inline>
   document.addEventListener('DOMContentLoaded', () => {
-    // KONFIGURASI SUPABASE
     const SUPABASE_URL = "https://mnpoxmxslqrqsgcfbssv.supabase.co";
     const SUPABASE_KEY = "sb_publishable_a_BfJEtkxjstZ1rBucJMww_uVyO0XuR";
 
@@ -263,10 +331,10 @@ const products = [
       { id: "cireng-ayamsuwir", name: "Cireng Isi Ayam Suwir", price: 10000, hasVariants: false },
       { id: "cireng-kuah-creamy", name: "Cireng Kuah Keju Creamy", price: 12000, hasVariants: false },
       { id: "dimsum-kuah-creamy", name: "Dimsum Kuah Keju Creamy", price: 13000, hasVariants: false },
-      { id: "bananaroll", name: "Banana Roll", price: 10000, hasVariants: false },
-      { id: "cheeseroll", name: "Cheese Roll", price: 10000, hasVariants: false },
-      { id: "bolubi-keju", name: "Bola Ubi Keju Lumer", price: 10000, hasVariants: false },
-      { id: "bolubi-cokelat", name: "Bola Ubi Cokelat Lumer", price: 10000, hasVariants: false },
+      { id: "bananaroll", name: "Banana Roll", price: 10000, hasGlazeTopping: true },
+      { id: "cheeseroll", name: "Cheese Roll", price: 10000, hasGlazeTopping: true },
+      { id: "bolubi-keju", name: "Bola Ubi Keju Lumer", price: 10000, hasGlazeTopping: true },
+      { id: "bolubi-cokelat", name: "Bola Ubi Cokelat Lumer", price: 10000, hasGlazeTopping: true },
     ];
 
     function getSelectedVariantData(productId) {
@@ -280,6 +348,74 @@ const products = [
         };
       }
       return null;
+    }
+
+    function getGlazeToppingData(productId) {
+      const glaze1El = document.getElementById('glaze1-select-' + productId);
+      const glaze2El = document.getElementById('glaze2-select-' + productId);
+      const toppingCbs = document.querySelectorAll(`input[name="topping-${productId}"]:checked`);
+      
+      const glazes = [];
+      if (glaze1El && glaze1El.value) glazes.push(glaze1El.value);
+      if (glaze2El && glaze2El.value) glazes.push(glaze2El.value);
+
+      const toppings = [];
+      toppingCbs.forEach(cb => toppings.push(cb.value));
+
+      // Kalkulasi Otomatis:
+      // 1 topping pertama = gratis (include harga dasar 10rb)
+      // Topping ke-2 dst = +2.000 per pcs
+      const extraToppingCount = Math.max(0, toppings.length - 1);
+      const extraToppingFee = extraToppingCount * 2000;
+
+      const glazeStr = glazes.length > 0 ? glazes.join(' + ') : 'Tanpa Glaze';
+      const toppingStr = toppings.length > 0 ? toppings.join(', ') : 'Tanpa Topping';
+
+      return {
+        keySuffix: `-${glazes.join('_')}-${toppings.join('_')}`,
+        detailText: `(Glaze: ${glazeStr} | Topping: ${toppingStr})`,
+        calculatedPrice: 10000 + extraToppingFee
+      };
+    }
+
+    function updateCardPriceDisplay(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product || !product.hasGlazeTopping) return;
+
+      const glazeTopping = getGlazeToppingData(productId);
+      const priceDisplayEl = document.getElementById(`price-display-${productId}`);
+      
+      if (priceDisplayEl) {
+        priceDisplayEl.innerText = `Rp ${glazeTopping.calculatedPrice.toLocaleString('id-ID')}`;
+      }
+    }
+
+    function syncProductCart(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product) return;
+
+      updateCardPriceDisplay(productId);
+
+      const qtyCountEl = document.querySelector(`.qty-count[data-id="${productId}"]`);
+      const currentQty = qtyCountEl ? parseInt(qtyCountEl.textContent || '0') : 0;
+
+      if (currentQty > 0) {
+        for (const k in cart) {
+          if (k.startsWith(productId)) delete cart[k];
+        }
+
+        if (product.hasGlazeTopping) {
+          const glazeTopping = getGlazeToppingData(productId);
+          const cartKey = `${productId}${glazeTopping.keySuffix}`;
+          cart[cartKey] = {
+            id: cartKey,
+            name: `${product.name} ${glazeTopping.detailText}`,
+            price: glazeTopping.calculatedPrice,
+            qty: currentQty
+          };
+        }
+        updateCartUI();
+      }
     }
 
     function updateCartUI() {
@@ -310,18 +446,31 @@ const products = [
       }
     }
 
-    // Tombol +
+    // Event listener saat user nyentang/lepas topping atau ubah glaze
+    document.querySelectorAll('.topping-cb, .glaze-select').forEach(element => {
+      element.addEventListener('change', (e) => {
+        const productId = e.target.getAttribute('data-id');
+        if (productId) {
+          syncProductCart(productId);
+        }
+      });
+    });
+
+    // Tombol (+)
     document.querySelectorAll('.btn-plus').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget;
         const id = target.getAttribute('data-id');
         const hasVariant = target.getAttribute('data-has-variant') === 'true';
+        const hasGlaze = target.getAttribute('data-has-glaze') === 'true';
 
         if (!id) return;
 
         let cartKey = id;
         let name = '';
         let price = 0;
+
+        const product = productsData.find(p => p.id === id);
 
         if (hasVariant) {
           const variantData = getSelectedVariantData(id);
@@ -330,8 +479,14 @@ const products = [
             name = variantData.name;
             price = variantData.price;
           }
+        } else if (hasGlaze) {
+          const glazeTopping = getGlazeToppingData(id);
+          if (glazeTopping && product) {
+            cartKey = `${id}${glazeTopping.keySuffix}`;
+            name = `${product.name} ${glazeTopping.detailText}`;
+            price = glazeTopping.calculatedPrice;
+          }
         } else {
-          const product = productsData.find(p => p.id === id);
           if (product) {
             name = product.name;
             price = product.price || 0;
@@ -355,25 +510,19 @@ const products = [
       });
     });
 
-    // Tombol -
+    // Tombol (-)
     document.querySelectorAll('.btn-minus').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget;
         const id = target.getAttribute('data-id');
-        const hasVariant = target.getAttribute('data-has-variant') === 'true';
 
         if (!id) return;
 
-        let cartKey = id;
+        let matchingKey = Object.keys(cart).reverse().find(k => k.startsWith(id) && cart[k].qty > 0);
 
-        if (hasVariant) {
-          const variantData = getSelectedVariantData(id);
-          if (variantData) cartKey = variantData.variantId;
-        }
-
-        if (cart[cartKey] && cart[cartKey].qty > 0) {
-          cart[cartKey].qty -= 1;
-          if (cart[cartKey].qty === 0) delete cart[cartKey];
+        if (matchingKey && cart[matchingKey]) {
+          cart[matchingKey].qty -= 1;
+          if (cart[matchingKey].qty === 0) delete cart[matchingKey];
         }
 
         let totalProductQty = 0;
@@ -410,7 +559,7 @@ const products = [
       });
     });
 
-    // Submit Order
+    // Submit Order Form
     const form = document.getElementById('order-form');
     if (form) {
       form.addEventListener('submit', async (e) => {
@@ -469,7 +618,7 @@ const products = [
           `*Total Pembayaran:* Rp ${total.toLocaleString('id-ID')}\n\n` +
           `Mohon diproses ya min, makasih!`;
 
-        const adminWA = "6288235843754";
+        const adminWA = "6285755534178";
         window.open(`https://wa.me/${adminWA}?text=${encodeURIComponent(waText)}`, '_blank');
       });
     }

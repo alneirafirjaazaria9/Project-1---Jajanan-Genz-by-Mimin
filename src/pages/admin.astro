@@ -3,12 +3,11 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Admin Rekap Pesanan">
-  <!-- Load CDN Eksternal -->
+  <!-- CDN Eksternal -->
   <script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- CSS khusus untuk menyembunyikan Navbar bawaan di halaman Admin -->
   <style>
     header, nav {
       display: none !important;
@@ -18,9 +17,9 @@ import Layout from '../layouts/Layout.astro';
   <div class="bg-[#0F051D] text-white min-h-screen p-4 md:p-8 font-sans">
     
     <!-- LOGIN FORM -->
-    <div id="login-section" class="max-w-md mx-auto mt-20 bg-[#1A0B2E] border border-[#FF4B91]/30 rounded-3xl p-8 shadow-[0_0_30px_rgba(255,75,145,0.15)] text-center">
+    <div id="login-section" class="max-w-md mx-auto mt-20 bg-[#1A0B2E] border border-[#FF4B91]/30 rounded-3xl p-8 shadow-2xl text-center">
       <div class="text-5xl mb-4">🔐</div>
-      <h1 class="text-2xl font-black text-[#FFD000] tracking-wide mb-2">Akses Rekap Admin</h1>
+      <h1 class="text-2xl font-black text-[#FFD000] mb-2">Akses Rekap Admin</h1>
       <p class="text-xs text-[#C8B3E6] mb-6">Masukkan PIN untuk membuka rekap pesanan.</p>
       
       <form id="pin-form" class="space-y-4">
@@ -28,54 +27,86 @@ import Layout from '../layouts/Layout.astro';
           type="password" 
           id="pin-input" 
           placeholder="Masukkan PIN" 
-          class="w-full bg-[#25133E] border border-[#FF4B91]/40 rounded-2xl px-4 py-3.5 text-center text-xl text-white font-bold tracking-widest focus:outline-none focus:border-[#FF4B91] transition-all"
+          class="w-full bg-[#25133E] border border-[#FF4B91]/40 rounded-2xl px-4 py-3.5 text-center text-xl text-white font-bold focus:outline-none focus:border-[#FF4B91]"
           required
         />
         <button 
           type="submit" 
-          class="w-full bg-[#FF4B91] hover:bg-[#ff2d7d] text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-[0_0_20px_rgba(255,75,145,0.4)] text-sm tracking-wide">
+          class="w-full bg-[#FF4B91] hover:bg-[#ff2d7d] text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-lg text-sm">
           Masuk ke Dashboard
         </button>
       </form>
     </div>
 
     <!-- DASHBOARD ADMIN -->
-    <div id="admin-dashboard" class="max-w-4xl mx-auto hidden pt-4">
+    <div id="admin-dashboard" class="max-w-5xl mx-auto hidden pt-4">
+      
       <!-- Header Dashboard -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 bg-[#1A0B2E] border border-[#FF4B91]/30 p-6 rounded-3xl shadow-xl">
         <div>
-          <h1 class="text-2xl font-black text-[#FFD000] flex items-center gap-2 tracking-wide">
+          <h1 class="text-2xl font-black text-[#FFD000] flex items-center gap-2">
             📊 Rekap Pesanan Masuk
           </h1>
-          <p class="text-xs text-[#C8B3E6] mt-1">Pantau & download rekapan pesanan dapur/pengiriman.</p>
+          <p class="text-xs text-[#C8B3E6] mt-1">Filter periode tanggal & download rekap PDF dengan total omset.</p>
         </div>
         
         <div class="flex flex-wrap gap-2 w-full md:w-auto">
-          <button id="btn-refresh" class="bg-[#25133E] hover:bg-[#341b57] text-[#C8B3E6] px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-[#FF4B91]/30 active:scale-95">
+          <button id="btn-refresh" class="bg-[#25133E] hover:bg-[#341b57] text-[#C8B3E6] px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-[#FF4B91]/30">
             🔄 Refresh
           </button>
-          <button id="btn-pdf" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-900/30 active:scale-95">
-            📄 Download PDF
+          <button id="btn-pdf" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg">
+            📄 Download PDF Rekapan
           </button>
-          <button id="btn-logout" class="bg-rose-900/40 hover:bg-rose-900/80 text-rose-300 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all border border-rose-500/30">
+          <button id="btn-logout" class="bg-rose-900/40 hover:bg-rose-900/80 text-rose-300 px-3.5 py-2.5 rounded-xl text-xs font-bold border border-rose-500/30">
             Keluar
           </button>
+        </div>
+      </div>
+
+      <!-- KOTAK FILTER PERIODE TANGGAL -->
+      <div class="bg-[#1A0B2E] border-2 border-[#FF4B91] p-5 rounded-2xl mb-6 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-black text-[#FFD000] uppercase tracking-wider flex items-center gap-1.5">
+            🔍 Filter Periode Tanggal Kirim
+          </p>
+          <span id="filter-indicator" class="text-[10px] bg-[#FF4B91]/20 text-[#FF80B5] px-2.5 py-1 rounded-full font-bold">
+            Menampilkan Semua Data
+          </span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+          <div>
+            <label class="text-[11px] text-[#C8B3E6] block mb-1 font-semibold">Dari Tanggal:</label>
+            <input type="date" id="filter-start" class="w-full bg-[#25133E] border border-[#FF4B91]/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF4B91]" />
+          </div>
+          <div>
+            <label class="text-[11px] text-[#C8B3E6] block mb-1 font-semibold">Sampai Tanggal:</label>
+            <input type="date" id="filter-end" class="w-full bg-[#25133E] border border-[#FF4B91]/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF4B91]" />
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-apply-filter" class="flex-1 bg-[#FF4B91] hover:bg-[#ff2d7d] text-white font-bold py-2 px-4 rounded-xl text-xs shadow-md">
+              Terapkan Filter
+            </button>
+            <button id="btn-reset-filter" class="bg-[#25133E] hover:bg-[#341b57] text-[#C8B3E6] font-bold py-2 px-3 rounded-xl text-xs border border-[#FF4B91]/30">
+              Reset
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Ringkasan Statistik -->
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-5 rounded-2xl">
-          <p class="text-xs font-medium text-[#C8B3E6]">Total Pesanan</p>
+          <p class="text-xs font-medium text-[#C8B3E6]">Total Pesanan (Filtered)</p>
           <p id="stat-total-orders" class="text-3xl font-black text-[#FFD000] mt-1">0</p>
         </div>
         <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-5 rounded-2xl">
-          <p class="text-xs font-medium text-[#C8B3E6]">Total Penjualan</p>
+          <p class="text-xs font-medium text-[#C8B3E6]">Total Omset (Filtered)</p>
           <p id="stat-total-income" class="text-xl md:text-2xl font-black text-emerald-400 mt-1">Rp 0</p>
         </div>
         <div class="bg-[#1A0B2E] border border-[#FF4B91]/20 p-5 rounded-2xl col-span-2 md:col-span-1">
-          <p class="text-xs font-medium text-[#C8B3E6]">Tanggal</p>
-          <p id="stat-date" class="text-sm font-bold text-white mt-2">-</p>
+          <p class="text-xs font-medium text-[#C8B3E6]">Periode Terpilih</p>
+          <p id="stat-date" class="text-xs font-bold text-white mt-2 leading-relaxed">Semua Data Pesanan</p>
         </div>
       </div>
 
@@ -83,12 +114,13 @@ import Layout from '../layouts/Layout.astro';
       <div class="space-y-5" id="orders-container">
         <p class="text-center text-[#8B74A8] py-12 italic">Memuat data pesanan...</p>
       </div>
+
     </div>
   </div>
 
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
-      const ADMIN_PIN = "yasminsifa13";
+      const ADMIN_PIN = "123456";
       const SUPABASE_URL = "https://mnpoxmxslqrqsgcfbssv.supabase.co";
       const SUPABASE_KEY = "sb_publishable_a_BfJEtkxjstZ1rBucJMww_uVyO0XuR";
 
@@ -103,7 +135,12 @@ import Layout from '../layouts/Layout.astro';
       const pinInput = document.getElementById('pin-input');
       const ordersContainer = document.getElementById('orders-container');
 
-      let fetchedOrders = [];
+      const filterStart = document.getElementById('filter-start');
+      const filterEnd = document.getElementById('filter-end');
+      const filterIndicator = document.getElementById('filter-indicator');
+
+      let rawOrders = [];
+      let filteredOrders = [];
 
       if (sessionStorage.getItem('admin_authenticated') === 'true') {
         showDashboard();
@@ -127,6 +164,19 @@ import Layout from '../layouts/Layout.astro';
 
       document.getElementById('btn-refresh')?.addEventListener('click', () => {
         loadOrders();
+      });
+
+      document.getElementById('btn-apply-filter')?.addEventListener('click', () => {
+        applyDateFilter();
+      });
+
+      document.getElementById('btn-reset-filter')?.addEventListener('click', () => {
+        if (filterStart) filterStart.value = '';
+        if (filterEnd) filterEnd.value = '';
+        filteredOrders = [...rawOrders];
+        renderOrders(filteredOrders);
+        updateStats(filteredOrders, "Semua Data Pesanan");
+        if (filterIndicator) filterIndicator.innerText = "Menampilkan Semua Data";
       });
 
       document.getElementById('btn-pdf')?.addEventListener('click', () => {
@@ -155,13 +205,47 @@ import Layout from '../layouts/Layout.astro';
 
           if (error) throw error;
 
-          fetchedOrders = data || [];
-          renderOrders(fetchedOrders);
-          updateStats(fetchedOrders);
+          rawOrders = data || [];
+          filteredOrders = [...rawOrders];
+          renderOrders(filteredOrders);
+          updateStats(filteredOrders, "Semua Data Pesanan");
         } catch (err) {
           console.error(err);
           if (ordersContainer) ordersContainer.innerHTML = `<p class="text-center text-rose-400 py-8">Gagal mengambil data pesanan: ${err.message || err}</p>`;
         }
+      }
+
+      function applyDateFilter() {
+        const startVal = filterStart?.value;
+        const endVal = filterEnd?.value;
+
+        if (!startVal && !endVal) {
+          alert("Silakan pilih tanggal 'Dari' atau 'Sampai' terlebih dahulu!");
+          return;
+        }
+
+        filteredOrders = rawOrders.filter(item => {
+          if (!item.tanggal_kirim) return false;
+          
+          const match = item.tanggal_kirim.match(/\d{4}-\d{2}-\d{2}/);
+          if (!match) return true; 
+
+          const orderDate = match[0];
+
+          if (startVal && endVal) {
+            return orderDate >= startVal && orderDate <= endVal;
+          } else if (startVal) {
+            return orderDate >= startVal;
+          } else if (endVal) {
+            return orderDate <= endVal;
+          }
+          return true;
+        });
+
+        const labelText = `${startVal || 'Awal'} s/d ${endVal || 'Akhir'}`;
+        if (filterIndicator) filterIndicator.innerText = `Filtered: ${labelText}`;
+        renderOrders(filteredOrders);
+        updateStats(filteredOrders, labelText);
       }
 
       function renderOrders(orders) {
@@ -169,8 +253,9 @@ import Layout from '../layouts/Layout.astro';
 
         if (orders.length === 0) {
           ordersContainer.innerHTML = `
-            <div class="bg-[#1A0B2E] p-8 rounded-2xl text-center border border-[#FF4B91]/10">
-              <p class="text-gray-400">Belum ada pesanan masuk.</p>
+            <div class="bg-[#1A0B2E] p-8 rounded-2xl text-center border border-[#FF4B91]/20">
+              <p class="text-gray-300 font-bold">Tidak ada pesanan pada periode tanggal ini.</p>
+              <p class="text-xs text-[#C8B3E6] mt-1">Coba sesuaikan tanggal filter atau klik Reset.</p>
             </div>`;
           return;
         }
@@ -189,7 +274,7 @@ import Layout from '../layouts/Layout.astro';
                 </div>
                 <div class="text-right">
                   <span class="text-[11px] text-[#C8B3E6] font-medium block">Waktu / Tgl Kirim:</span>
-                  <span class="text-xs font-extrabold text-white bg-[#25133E] px-3 py-1.5 rounded-lg border border-[#FF4B91]/40 inline-block mt-1 shadow-inner">${item.tanggal_kirim || '-'}</span>
+                  <span class="text-xs font-extrabold text-[#FFD000] bg-[#25133E] px-3 py-1.5 rounded-lg border border-[#FF4B91]/40 inline-block mt-1 shadow-inner">${item.tanggal_kirim || '-'}</span>
                 </div>
               </div>
 
@@ -216,7 +301,7 @@ import Layout from '../layouts/Layout.astro';
         ordersContainer.innerHTML = html;
       }
 
-      function updateStats(orders) {
+      function updateStats(orders, periodeStr) {
         const totalOrdersEl = document.getElementById('stat-total-orders');
         const totalIncomeEl = document.getElementById('stat-total-income');
         const statDateEl = document.getElementById('stat-date');
@@ -232,31 +317,55 @@ import Layout from '../layouts/Layout.astro';
         });
 
         if (totalIncomeEl) totalIncomeEl.innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
-
-        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        if (statDateEl) statDateEl.innerText = today;
+        if (statDateEl) statDateEl.innerText = periodeStr;
       }
 
       function generatePDF() {
-        if (fetchedOrders.length === 0) {
+        if (filteredOrders.length === 0) {
           alert('Tidak ada data pesanan untuk di-download.');
           return;
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        // Penyesuaian 1: Mengubah mode ke Landscape (Mendatar)
+        const doc = new jsPDF('landscape');
         const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        doc.setFontSize(16);
-        doc.text("REKAP PESANAN - JAJANAN GEN Z BY MIMIN", 14, 18);
+        let grandTotal = 0;
+        filteredOrders.forEach(o => {
+          if (o.total) {
+            const num = parseInt(o.total.replace(/[^0-9]/g, '')) || 0;
+            grandTotal += num;
+          }
+        });
+
+        // Penyesuaian 2: Header Laporan Keuangan Formal (Warna Slate Dark #1E293B)
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(15);
+        doc.setTextColor(30, 41, 59);
+        doc.text("LAPORAN REKAPITULASI PESANAN MASUK", 14, 16);
         
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Tanggal Cetak: ${todayStr}`, 14, 25);
-        doc.text(`Total Pesanan: ${fetchedOrders.length} Pesanan`, 14, 30);
+        doc.setFontSize(11);
+        doc.setTextColor(71, 85, 105);
+        doc.text("JAJANAN GEN Z BY MIMIN", 14, 22);
+
+        // Penyesuaian 3: Garis Pembatas Header Formal
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.5);
+        doc.line(14, 25, 283, 25);
+
+        // Ringkasan Teks Informasi
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Tanggal Cetak  : ${todayStr}`, 14, 32);
+        doc.text(`Total Pesanan  : ${filteredOrders.length} Pesanan`, 14, 37);
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
 
         const tableData = [];
-        fetchedOrders.forEach((item, index) => {
+        filteredOrders.forEach((item, index) => {
           tableData.push([
             index + 1,
             item.nama || '-',
@@ -268,25 +377,45 @@ import Layout from '../layouts/Layout.astro';
           ]);
         });
 
+        // Penyesuaian 4: Footer Baris Total Laporan Formal
+        tableData.push([
+          { content: 'TOTAL PENJUALAN', colSpan: 6, styles: { halign: 'right', fontStyle: 'bold', fillColor: [241, 245, 249], textColor: [15, 23, 42] } },
+          { content: `Rp ${grandTotal.toLocaleString('id-ID')}`, styles: { fontStyle: 'bold', fillColor: [241, 245, 249], textColor: [16, 185, 129], halign: 'right' } }
+        ]);
+
+        // Penyesuaian 5: Styling Tabel (Pemberian Lebar Kolom Presisi agar Tulisan Tidak Terpotong)
         doc.autoTable({
-          startY: 35,
-          head: [['No', 'Nama', 'No WA', 'Waktu Kirim', 'Pesanan', 'Alamat', 'Total']],
+          startY: 42,
+          head: [['No', 'Nama Pelanggan', 'No. Telp', 'Tanggal Kirim', 'Rincian Pesanan', 'Alamat Pengiriman', 'Total']],
           body: tableData,
           theme: 'grid',
-          headStyles: { fillColor: [255, 75, 145], textColor: [255, 255, 255], fontStyle: 'bold' },
-          styles: { fontSize: 8, cellPadding: 2.5 },
+          headStyles: { 
+            fillColor: [30, 41, 59], // Dark Slate / Navy Formal
+            textColor: [255, 255, 255], 
+            fontStyle: 'bold',
+            halign: 'center',
+            valign: 'middle'
+          },
+          styles: { 
+            fontSize: 8.5, 
+            cellPadding: 3,
+            textColor: [51, 65, 85],
+            lineColor: [226, 232, 240],
+            lineWidth: 0.1,
+            valign: 'top'
+          },
           columnStyles: {
-            0: { cellWidth: 8 },
-            1: { cellWidth: 25 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 25 },
-            4: { cellWidth: 45 },
-            5: { cellWidth: 40 },
-            6: { cellWidth: 22 }
+            0: { cellWidth: 10, halign: 'center' }, // Kolom No (Melebarkan dari 8 ke 10 biar "No" tak terpotong)
+            1: { cellWidth: 32 },                  // Nama
+            2: { cellWidth: 30 },                  // No WA
+            3: { cellWidth: 32 },                  // Waktu Kirim
+            4: { cellWidth: 70 },                  // Detail Pesanan (Diberi ruang paling lega)
+            5: { cellWidth: 65 },                  // Alamat Pengiriman
+            6: { cellWidth: 30, fontStyle: 'bold', halign: 'right' } // Total
           }
         });
 
-        doc.save(`Rekap_Pesanan_JajananGenZ_${todayStr.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`Laporan_Rekap_Pesanan_${todayStr.replace(/\s+/g, '_')}.pdf`);
       }
     });
   </script>
